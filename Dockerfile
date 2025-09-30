@@ -1,7 +1,6 @@
 # CUDA base image with cuDNN
 FROM nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04
 
-# Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PATH=/opt/conda/bin:$PATH
 
@@ -31,13 +30,15 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86
     rm /tmp/miniconda.sh && \
     /opt/conda/bin/conda clean -afy
 
-# Set shell to bash for conda
 SHELL ["/bin/bash", "-c"]
 
-# Create conda env with Python 3.10.9
-RUN conda create -n wan2gp python=3.10.9 -y
+# Accept Conda TOS and create environment
+RUN conda config --set always_yes yes --set changeps1 no && \
+    conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main && \
+    conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r && \
+    conda create -n wan2gp python=3.10.9 -y
 
-# Ensure conda env is on PATH
+# Add conda env to PATH
 ENV PATH=/opt/conda/envs/wan2gp/bin:$PATH
 
 # Install PyTorch (test cu128 build)
